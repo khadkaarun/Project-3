@@ -1,4 +1,5 @@
-pragma solidity ^0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.17;
 
 contract TicketSale {
     // Contract variables
@@ -11,7 +12,7 @@ contract TicketSale {
     mapping(address => address) public swapOffers; // Mapping to keep track of swap offers
 
     // Constructor
-    constructor(uint _numTickets, uint _price) public {
+    constructor(uint _numTickets, uint _price) {
         owner = msg.sender;
         ticketPrice = _price;
         numTickets = _numTickets;
@@ -73,7 +74,7 @@ contract TicketSale {
         resaleTickets[ticketId] = price;
     }
 
-    // Accept Resale Ticket
+// Accept Resale Ticket
     function acceptResale(uint ticketId) public payable {
         uint resalePrice = resaleTickets[ticketId];
         require(resalePrice > 0, "Ticket is not available for resale");
@@ -91,13 +92,17 @@ contract TicketSale {
         ticketOwners[ticketId] = msg.sender;
         ticketsOwned[msg.sender] = ticketId;
 
-        // Pay the seller
-        address(uint160(seller)).transfer(sellerAmount);
-        address(uint160(owner)).transfer(serviceFee);
+        // Pay the seller and the owner
+        (bool successSeller, ) = seller.call{value: sellerAmount}("");
+        require(successSeller, "Transfer to seller failed");
+
+        (bool successOwner, ) = owner.call{value: serviceFee}("");
+        require(successOwner, "Transfer to owner failed");
 
         // Remove from resale list
         delete resaleTickets[ticketId];
     }
+
 
     // Check Resale Tickets
     function checkResale() public view returns (uint[] memory) {
