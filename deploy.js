@@ -5,7 +5,6 @@ const fs = require('fs');
 const path = require('path');
 
 // Load ABI and Bytecode from compiled contract
-// Assuming you have a build folder created by truffle or a compile.js that outputs build artifacts
 const compiledPath = path.resolve(__dirname, 'build', 'contracts', 'TicketSale.json');
 const compiled = JSON.parse(fs.readFileSync(compiledPath, 'utf8'));
 
